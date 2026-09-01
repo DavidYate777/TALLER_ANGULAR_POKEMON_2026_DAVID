@@ -1,0 +1,100 @@
+<main class="page">
+  <header class="hero">
+    <div class="pokeball" aria-hidden="true">
+      <span class="pokeball__btn"></span>
+    </div>
+    <h1 class="title">Pokédex</h1>
+    <p class="subtitle">Busca cualquier Pokémon y descubre su nombre e imagen usando la PokeAPI.</p>
+  </header>
+
+  <form class="search" (ngSubmit)="onSubmit()">
+    <div class="search__field">
+      <svg class="search__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" />
+        <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <input
+        type="text"
+        name="query"
+        class="search__input"
+        placeholder="Ej: ditto, pikachu, charizard..."
+        autocomplete="off"
+        [(ngModel)]="query"
+        aria-label="Nombre del Pokémon"
+      />
+    </div>
+    <button type="submit" class="search__btn" [disabled]="loading">
+      <span *ngIf="!loading">Buscar</span>
+      <span *ngIf="loading">Buscando...</span>
+    </button>
+  </form>
+
+  <div class="chips" role="list">
+    <span class="chips__label">Prueba con:</span>
+    <button
+      *ngFor="let s of suggestions"
+      type="button"
+      class="chip"
+      role="listitem"
+      (click)="searchSuggestion(s)"
+    >
+      {{ s }}
+    </button>
+  </div>
+
+  <section class="result" aria-live="polite">
+    <!-- Estado de carga -->
+    <div *ngIf="loading" class="state">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Cargando Pokémon...</p>
+    </div>
+
+    <!-- Estado de error -->
+    <div *ngIf="!loading && errorMessage" class="state state--error">
+      <span class="state__emoji" aria-hidden="true">😕</span>
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Estado vacío inicial -->
+    <div *ngIf="!loading && !errorMessage && !pokemon" class="state state--empty">
+      <span class="state__emoji" aria-hidden="true">🔍</span>
+      <p>Escribe un nombre y presiona <strong>Buscar</strong> para empezar.</p>
+    </div>
+
+    <!-- Tarjeta del resultado -->
+    <article *ngIf="!loading && pokemon" class="card" [attr.data-type]="pokemon.types[0]">
+      <div class="card__glow" aria-hidden="true"></div>
+      <span class="card__id">{{ formatId(pokemon.id) }}</span>
+
+      <div class="card__image-wrap">
+        <img
+          class="card__image"
+          [src]="pokemon.image"
+          [alt]="'Imagen de ' + pokemon.name"
+          loading="lazy"
+        />
+      </div>
+
+      <h2 class="card__name">{{ pokemon.name }}</h2>
+
+      <div class="card__types">
+        <span *ngFor="let t of pokemon.types" class="type" [attr.data-type]="t">{{ t }}</span>
+      </div>
+
+      <dl class="card__stats">
+        <div class="stat">
+          <dt>Altura</dt>
+          <dd>{{ (pokemon.height / 10).toFixed(1) }} m</dd>
+        </div>
+        <div class="stat">
+          <dt>Peso</dt>
+          <dd>{{ (pokemon.weight / 10).toFixed(1) }} kg</dd>
+        </div>
+      </dl>
+    </article>
+  </section>
+
+  <footer class="footer">
+    <p>Datos obtenidos de <a href="https://pokeapi.co" target="_blank" rel="noopener noreferrer">PokeAPI</a></p>
+  </footer>
+</main>
